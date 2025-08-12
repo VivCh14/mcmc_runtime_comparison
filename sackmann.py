@@ -13,7 +13,6 @@ def get_data(
     include_qualifying_and_challengers=False,
     include_futures=False,
 ):
-
     all_csvs = glob(join(sackmann_dir, f"*{tour}_matches_????.csv"))
 
     if include_qualifying_and_challengers:
@@ -79,7 +78,9 @@ def get_data(
     data = data[to_keep]
 
     # Add a numerical round number
-    data["round_number"] = data["round"].replace(round_numbers)
+    data["round_number"] = (
+        data["round"].replace(round_numbers).infer_objects(copy=False)
+    )
 
     # Add date information
     data["tourney_date"] = pd.to_datetime(
@@ -108,7 +109,6 @@ def get_data(
 
 def compute_game_margins(string_scores):
     def compute_margin(sample_set):
-
         if "[" in sample_set:
             return 0
 
@@ -132,7 +132,6 @@ def compute_game_margins(string_scores):
 
 
 def get_player_info(sackmann_dir, tour="atp"):
-
     player_info = pd.read_csv(
         join(sackmann_dir, f"{tour}_players.csv"),
         header=None,

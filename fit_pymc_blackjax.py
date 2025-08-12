@@ -1,9 +1,8 @@
 import sys
 import os
-import pymc.sampling_jax
+import pymc.sampling.jax
 from fetch_data import get_pymc_model
 from time import time
-import pymc as pm
 
 start_year = int(sys.argv[1])
 platform = sys.argv[2]
@@ -12,6 +11,9 @@ seed = int(sys.argv[4])
 chain_method = sys.argv[5]
 
 assert platform in ["cpu", "gpu"]
+
+# Set default device to platform
+os.environ["JAX_PLATFORMS"] = platform
 
 if platform == "cpu":
     # Disable GPU
@@ -27,9 +29,12 @@ start_time = time()
 
 with model:
     # No progress bar?
-    hierarchical_trace = pymc.sampling_jax.sample_blackjax_nuts(
-        random_seed=seed, chain_method=chain_method,
-        idata_kwargs={'log_likelihood': False})
+    hierarchical_trace = pymc.sampling.jax.sample_blackjax_nuts(
+        random_seed=seed,
+        chain_method=chain_method,
+        idata_kwargs={"log_likelihood": False},
+        # progressbar=False,
+    )
 
 runtime = time() - start_time
 
